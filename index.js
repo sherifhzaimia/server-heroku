@@ -7,7 +7,7 @@ app.get("/", async (req, res) => {
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const page = await browser.newPage();
-  await page.goto("https://example.com");
+  await page.goto("https://google.com");
   const text = await page.$eval("h1", (el) => el.textContent);
   res.send(text);
 

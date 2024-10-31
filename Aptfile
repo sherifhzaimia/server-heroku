@@ -11,7 +11,6 @@ libxrandr2
 libxrender1
 libxtst6
 libglib2.0-0
-libgconf-2-4
 libnss3
 libgbm1
 libpango-1.0-0

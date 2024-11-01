@@ -2,9 +2,32 @@ const puppeteer = require("puppeteer");
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
+const mysql = require('mysql2'); // إضافة مكتبة MySQL
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// إعداد اتصال قاعدة البيانات
+const db = mysql.createConnection({
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    return;
+  }
+  console.log('Connected to MySQL database');
+
+  // اختبار استعلام بسيط
+  db.query('SELECT 1 + 1 AS solution', (error, results) => {
+    if (error) throw error;
+    console.log('The solution is: ', results[0].solution);
+  });
+});
 
 // تمكين CORS فقط للطلبات القادمة من https://app.inno-acc.com
 app.use(cors({
@@ -23,7 +46,6 @@ async function extractSessionToken(res) {
         "--no-zygote",
         "--single-process",
       ]
-     
     });
 
     const page = await browser.newPage();

@@ -22,8 +22,7 @@ async function extractSessionToken(res) {
         "--disable-gpu",
         "--no-zygote",
         "--single-process",
-      ],
-      executablePath: '/usr/bin/chromium-browser'
+      ]
      
     });
 

@@ -22,7 +22,9 @@ async function extractSessionToken(res) {
         "--disable-gpu",
         "--no-zygote",
         "--single-process",
-      ]
+      ],
+      executablePath: '/usr/bin/chromium-browser'
+     
     });
 
     const page = await browser.newPage();
@@ -30,7 +32,7 @@ async function extractSessionToken(res) {
     // الذهاب إلى صفحة تسجيل الدخول لـ CreativeSea
     await page.goto("https://creativsea.com/my-account/", {
       waitUntil: "networkidle2",
-      timeout: 60000, // زيادة المهلة إلى 60 ثانية
+      timeout: 120000, //  120 ثوان  
     });
 
     // إدخال اسم المستخدم

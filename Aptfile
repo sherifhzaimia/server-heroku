@@ -20,4 +20,5 @@ libcairo2
 libxkbcommon0
 libasound2-data
 libasound2-plugins
+chromium-browser
 

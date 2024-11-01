@@ -1,33 +1,10 @@
 const puppeteer = require("puppeteer");
 const express = require("express");
-const fs = require("fs");
+const axios = require("axios"); // إضافة مكتبة axios لإرسال الطلبات
 const cors = require("cors");
-const mysql = require('mysql2'); // إضافة مكتبة MySQL
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-// إعداد اتصال قاعدة البيانات
-const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
-  }
-  console.log('Connected to MySQL database');
-
-  // اختبار استعلام بسيط
-  db.query('SELECT 1 + 1 AS solution', (error, results) => {
-    if (error) throw error;
-    console.log('The solution is: ', results[0].solution);
-  });
-});
 
 // تمكين CORS فقط للطلبات القادمة من https://app.inno-acc.com
 app.use(cors({
@@ -53,7 +30,7 @@ async function extractSessionToken(res) {
     // الذهاب إلى صفحة تسجيل الدخول لـ CreativeSea
     await page.goto("https://creativsea.com/my-account/", {
       waitUntil: "networkidle2",
-      timeout: 120000, //  120 ثوان  
+      timeout: 120000,
     });
 
     // إدخال اسم المستخدم
@@ -73,8 +50,7 @@ async function extractSessionToken(res) {
 
     // البحث عن توكين الجلسة
     const sessionToken = cookies.find(
-      (cookie) =>
-        cookie.name === "wordpress_logged_in_69f5389998994e48cb1f2b3bcad30e49"
+      (cookie) => cookie.name === "wordpress_logged_in_69f5389998994e48cb1f2b3bcad30e49"
     );
 
     if (sessionToken) {
@@ -88,13 +64,11 @@ async function extractSessionToken(res) {
         secure: sessionToken.secure,
       };
 
-      // كتابة التوكين في ملف JSON
-      fs.writeFileSync("sessionToken.json", JSON.stringify(tokenData, null, 2));
+      // إرسال التوكين إلى API لتخزينه في قاعدة البيانات
+      await axios.post("https://app.inno-acc.com/store_session.php", tokenData);
 
-      console.log("تم استخراج توكين الجلسة وحفظه بنجاح في ملف sessionToken.json");
-
-      // إرسال التوكين كاستجابة لـ API
-      res.json({ success: true, token: tokenData });
+      console.log("تم تخزين توكين الجلسة بنجاح في قاعدة البيانات");
+      res.json({ success: true, message: "Session token stored successfully in the database" });
     } else {
       console.log("لم يتم العثور على توكين الجلسة.");
       res.json({ success: false, message: "لم يتم العثور على توكين الجلسة." });

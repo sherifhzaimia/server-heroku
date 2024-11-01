@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 const express = require("express");
-const axios = require("axios"); // إضافة مكتبة axios لإرسال الطلبات
+const axios = require("axios"); // إضافة مكتبة axios
 const cors = require("cors");
 
 const app = express();
@@ -65,10 +65,16 @@ async function extractSessionToken(res) {
       };
 
       // إرسال التوكين إلى API لتخزينه في قاعدة البيانات
-      await axios.post("https://app.inno-acc.com/store_session.php", tokenData);
+      await axios.post("https://app.inno-acc.com/store_session.php", tokenData)
+        .then(response => {
+          console.log("Response from API:", response.data); // عرض استجابة API في وحدة التحكم
+          res.json({ success: true, message: "Session token stored successfully in the database" });
+        })
+        .catch(error => {
+          console.error("Error sending request to API:", error); // عرض الخطأ في حالة فشل الطلب
+          res.json({ success: false, message: "Failed to store session token in the database" });
+        });
 
-      console.log("تم تخزين توكين الجلسة بنجاح في قاعدة البيانات");
-      res.json({ success: true, message: "Session token stored successfully in the database" });
     } else {
       console.log("لم يتم العثور على توكين الجلسة.");
       res.json({ success: false, message: "لم يتم العثور على توكين الجلسة." });
